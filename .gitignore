@@ -1,0 +1,15 @@
+.env
+.env.*
+!.env.example
+wp-config.php
+wp-admin/
+wp-includes/
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+wp-content/plugins/
+*.log
+*.sql
+*.sql.gz
+*.zip
+.DS_Store

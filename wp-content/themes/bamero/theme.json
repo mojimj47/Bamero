@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "appearanceTools": true,
+    "layout": {
+      "contentSize": "48rem",
+      "wideSize": "76rem"
+    },
+    "color": {
+      "defaultPalette": false,
+      "palette": [
+        { "slug": "ink", "name": "Ink", "color": "#172522" },
+        { "slug": "paper", "name": "Paper", "color": "#f7f6f1" },
+        { "slug": "surface", "name": "Surface", "color": "#fffefa" },
+        { "slug": "forest", "name": "Forest", "color": "#174f43" },
+        { "slug": "lime", "name": "Lime", "color": "#c9e56a" }
+      ]
+    },
+    "spacing": {
+      "units": [ "px", "em", "rem", "%", "vw", "vh" ]
+    },
+    "typography": {
+      "fluid": true,
+      "fontFamilies": [
+        {
+          "fontFamily": "'Vazirmatn', Tahoma, Arial, sans-serif",
+          "name": "Vazirmatn",
+          "slug": "bamero-sans"
+        }
+      ]
+    }
+  },
+  "styles": {
+    "color": {
+      "background": "#f7f6f1",
+      "text": "#172522"
+    },
+    "typography": {
+      "fontFamily": "var(--wp--preset--font-family--bamero-sans)",
+      "lineHeight": "1.8"
+    },
+    "elements": {
+      "link": {
+        "color": { "text": "#174f43" }
+      },
+      "button": {
+        "border": { "radius": "999px" },
+        "color": { "background": "#174f43", "text": "#ffffff" },
+        "typography": { "fontWeight": "700" }
+      }
+    }
+  }
+}

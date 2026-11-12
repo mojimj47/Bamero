@@ -1,0 +1,60 @@
+name: Theme CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare local sample environment
+        run: cp .env.example .env
+
+      - name: Validate Docker Compose configuration
+        run: docker compose config --quiet
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Check PHP syntax
+        run: find wp-content/themes/bamero -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Validate theme.json syntax
+        run: python3 -m json.tool wp-content/themes/bamero/theme.json > /dev/null
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Check navigation JavaScript syntax
+        run: node --check wp-content/themes/bamero/assets/js/navigation.js
+
+      - name: Run theme accessibility and metadata regression tests
+        run: node tests/navigation-a11y.test.cjs
+
+      - name: Verify bundled Vazirmatn font and license
+        run: |
+          python3 - <<'PY'
+          from hashlib import sha256
+          from pathlib import Path
+
+          root = Path('wp-content/themes/bamero/assets/fonts')
+          font = root / 'Vazirmatn[wght].woff2'
+          license_file = root / 'OFL.txt'
+          data = font.read_bytes()
+          assert data.startswith(b'wOF2'), 'Invalid WOFF2 font signature'
+          assert sha256(data).hexdigest() == '4e3fa217d38fdafc1fea4414ceb58ca5e662cf0ab5fa735a8c8c20e8b42cad92', 'Font differs from the pinned official v33.003 binary'
+          assert 'SIL OPEN FONT LICENSE Version 1.1' in license_file.read_text(encoding='utf-8'), 'Unexpected font license text'
+          PY

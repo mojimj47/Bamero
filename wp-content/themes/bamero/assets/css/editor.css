@@ -1,0 +1,13 @@
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("../fonts/Vazirmatn[wght].woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+body,
+.editor-styles-wrapper {
+  font-family: "Vazirmatn", Tahoma, Arial, sans-serif;
+  line-height: 1.8;
+}
