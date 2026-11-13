@@ -1,6 +1,6 @@
 services:
   db:
-    image: mariadb:11.4.13
+    image: mariadb:11.8.9
     restart: unless-stopped
     environment:
       MARIADB_DATABASE: ${DB_NAME:?Set DB_NAME in .env}
@@ -17,7 +17,7 @@ services:
       start_period: 20s
 
   wordpress:
-    image: wordpress:7.1.4-php8.3-apache
+    image: wordpress:7.1.4-php8.5-apache
     restart: unless-stopped
     depends_on:
       db:
@@ -34,6 +34,7 @@ services:
     volumes:
       - wordpress_data:/var/www/html
       - ./wp-content/themes/bamero:/var/www/html/wp-content/themes/bamero
+      - ./wp-content/plugins/bamero-core:/var/www/html/wp-content/plugins/bamero-core
 
 volumes:
   database_data:
