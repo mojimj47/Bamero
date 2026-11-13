@@ -5,27 +5,37 @@
 ## اجرای محلی
 
 1. Docker و Docker Compose را نصب کنید.
-2. `.env.example` را به `.env` کپی کنید. مقادیر داخل فایل نمونه فقط برای کار محلی‌اند؛ پیش از هر محیط عمومی، رمزهای قوی و جداگانه تعیین کنید.
-3. `docker compose up -d` را اجرا کنید و راه‌اندازی اولیهٔ WordPress را در `http://localhost:8080` کامل کنید.
+2. فایل .env.example را به .env کپی کنید. مقادیر داخل فایل نمونه فقط برای کار محلی‌اند؛ پیش از هر محیط عمومی، رمزهای قوی و جداگانه تعیین کنید.
+3. docker compose up -d را اجرا کنید و راه‌اندازی اولیهٔ WordPress را در http://localhost:8080 کامل کنید.
 4. از پیشخوان، آخرین نسخه پایدار WooCommerce را از منبع رسمی نصب و فعال کنید.
-5. از **نمایش ← پوسته‌ها**، پوستهٔ Bamero را فعال کنید. افزونه Bamero Core از مخزن به مسیر افزونه‌ها mount می‌شود؛ پس از نصب WooCommerce آن را از پیشخوان فعال کنید.
+5. از نمایش ← پوسته‌ها، پوستهٔ Bamero را فعال کنید. افزونه Bamero Core از مخزن به مسیر افزونه‌ها mount می‌شود؛ پس از نصب WooCommerce آن را از پیشخوان فعال کنید.
 6. زبان سایت را فارسی قرار دهید، راه‌انداز WooCommerce را تکمیل کنید و صفحات فروشگاه/سبد/تسویه‌حساب را بسازید.
 
 Compose یک محیط توسعهٔ محلی است و تنظیمات production، reverse proxy یا TLS ندارد. اگر volume دیتابیس از اجرای قبلی MariaDB 11.4 باقی مانده باشد، قبل از ارتقای آن به 11.8 از دیتابیس backup بگیرید و migration رسمی را انجام دهید؛ volume را حذف نکنید.
 
 ## ساختار
 
-- `wp-content/themes/bamero/`: پوستهٔ سفارشی و رابط RTL.
-- `wp-content/plugins/bamero-core/`: هستهٔ قابلیت‌های اختصاصی فروشگاه، از جمله Messaging و Adapter ملی‌پیامک.
-- `compose.yaml`: WordPress 7.1.4 با PHP 8.5 و MariaDB 11.8.9 برای توسعهٔ محلی.
-- `.gitlab-ci.yml` و `.github/workflows/theme-ci.yml`: بررسی syntax، اعتبارسنجی پیکربندی و تست‌های رگرسیون.
-- `docs/version-governance-fa.md`: سیاست اجباری نسخه‌ها.
-- `docs/versions-baseline-fa.md`: نسخه‌های هدف ثبت‌شده در تاریخ ممیزی.
+- wp-content/themes/bamero/: پوستهٔ سفارشی و رابط RTL.
+- wp-content/plugins/bamero-core/: هستهٔ قابلیت‌های اختصاصی فروشگاه، از جمله Messaging، OTP، کاتالوگ و مهاجرت‌های DB.
+- compose.yaml: WordPress 7.1.4 با PHP 8.5 و MariaDB 11.8.9 برای توسعهٔ محلی.
+- .gitlab-ci.yml و .github/workflows/theme-ci.yml: بررسی syntax، اعتبارسنجی پیکربندی و تست‌های رگرسیون.
+- docs/version-governance-fa.md: سیاست اجباری نسخه‌ها.
+- docs/versions-baseline-fa.md: نسخه‌های هدف ثبت‌شده در تاریخ ممیزی.
+- docs/catalog-import-fa.md: کاتالوگ منبع‌دار و روش ورود idempotent محصولات به WooCommerce.
+- docs/database-operations-fa.md: مهاجرت‌های DB، آزمون MariaDB واقعی و پشتیبان‌گیری.
+
+## کاتالوگ محصولات
+
+فهرست اولیه محصولات پارس مهر، نیپون و کاسپین آماده شده است. ورود با دستور wp bamero catalog import و از طریق CRUD رسمی WooCommerce انجام می‌شود. محصولات جدید draft می‌مانند تا قیمت، موجودی و بسته‌بندی واقعی تأیید شوند؛ قیمت یا موجودی ساختگی ثبت نمی‌شود.
+
+## پایگاه داده
+
+WooCommerce منبع حقیقت محصولات، قیمت، موجودی و سفارش‌هاست. Bamero Core دو جدول اختصاصی InnoDB برای OTP challenge و rate limiting دارد که با نسخه DB migration مدیریت می‌شوند. CI همان schema را روی MariaDB 11.8.9 واقعی اجرا و اجرای مجدد migration را بررسی می‌کند. جزئیات backup و بازیابی در مستند عملیات DB آمده است.
 
 ## وضعیت قابلیت‌ها
 
-Bamero Core شامل نرمال‌سازی موبایل ایران و ماژول ارسال پیامک ملی‌پیامک (REST Adapter)، قرارداد مستقل SmsProvider و صفحهٔ وضعیت پیامک در پیشخوان است. primitiveهای تولید و هش purpose-bound برای OTP و transport اختصاصی SendOtp ملی‌پیامک افزوده شده‌اند؛ جریان کامل OTP، ذخیره‌سازی challenge، rate limit و delivery tracking هنوز پیاده‌سازی نشده‌اند و ارسال واقعی تا آزمون staging فعال نیست. WSMS در این پروژه استفاده نمی‌شود.
+Bamero Core شامل نرمال‌سازی موبایل ایران، Adapter ملی‌پیامک، primitiveهای امن OTP و importer کاتالوگ است؛ جریان کامل ورود OTP، ذخیره‌سازی challenge و اتصال WooCommerce My Account هنوز تکمیل نشده‌اند. WSMS در این پروژه استفاده نمی‌شود.
 
 ## انتشار
 
-قبل از فروش واقعی، نسخه‌ها و سازگاری تمام افزونه‌ها را در staging ممیزی کنید، TLS و backup خارج از سرور را تنظیم کنید، ایمیل سفارش‌ها، ارسال، مالیات، ارز و سیاست مرجوعی را تکمیل کنید و سفارش‌های آزمایشی end-to-end را انجام دهید. وضعیت «Pipeline سبز» به‌تنهایی مجوز انتشار production نیست.
+قبل از فروش واقعی، نسخه‌ها و سازگاری تمام افزونه‌ها را در staging ممیزی کنید، TLS و backup خارج از سرور را تنظیم کنید، ایمیل سفارش‌ها، ارسال، مالیات، ارز و سیاست مرجوعی را تکمیل کنید و سفارش‌های آزمایشی end-to-end را انجام دهید. Pipeline سبز به‌تنهایی مجوز انتشار production نیست.
