@@ -24,7 +24,7 @@ Compose یک محیط توسعهٔ محلی است و تنظیمات production�
 
 ## وضعیت قابلیت‌ها
 
-Bamero Core شامل نرمال‌سازی موبایل ایران و ماژول ارسال پیامک ملی‌پیامک (REST Adapter)، قرارداد مستقل SmsProvider و صفحهٔ وضعیت پیامک در پیشخوان است. جریان OTP، rate limit و delivery tracking هنوز پیاده‌سازی نشده‌اند و ارسال واقعی تا آزمون staging فعال نیست. WSMS در این پروژه استفاده نمی‌شود.
+Bamero Core شامل نرمال‌سازی موبایل ایران و ماژول ارسال پیامک ملی‌پیامک (REST Adapter)، قرارداد مستقل SmsProvider و صفحهٔ وضعیت پیامک در پیشخوان است. primitiveهای تولید و هش purpose-bound برای OTP و transport اختصاصی SendOtp ملی‌پیامک افزوده شده‌اند؛ جریان کامل OTP، ذخیره‌سازی challenge، rate limit و delivery tracking هنوز پیاده‌سازی نشده‌اند و ارسال واقعی تا آزمون staging فعال نیست. WSMS در این پروژه استفاده نمی‌شود.
 
 ## انتشار
 

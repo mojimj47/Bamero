@@ -31,6 +31,12 @@ identity_unit_tests:
   script:
     - php tests/identity-phone-number.test.php
 
+otp_security_primitives_tests:
+  stage: test
+  image: php:8.5-cli
+  script:
+    - php tests/otp-security-primitives.test.php
+
 melipayamak_provider_tests:
   stage: test
   image: php:8.5-cli

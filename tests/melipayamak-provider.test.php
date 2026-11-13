@@ -34,10 +34,12 @@ final class WP_Error
 require_once __DIR__ . '/../wp-content/plugins/bamero-core/src/Identity/PhoneNumber.php';
 require_once __DIR__ . '/../wp-content/plugins/bamero-core/src/Messaging/SmsResult.php';
 require_once __DIR__ . '/../wp-content/plugins/bamero-core/src/Messaging/SmsProvider.php';
+require_once __DIR__ . '/../wp-content/plugins/bamero-core/src/Messaging/OtpSmsProvider.php';
 require_once __DIR__ . '/../wp-content/plugins/bamero-core/src/Messaging/MeliPayamakRestProvider.php';
 require_once __DIR__ . '/../wp-content/plugins/bamero-core/src/Messaging/SmsProviderFactory.php';
 
 use Bamero\Core\Messaging\MeliPayamakRestProvider;
+use Bamero\Core\Messaging\OtpSmsProvider;
 use Bamero\Core\Messaging\SmsProviderFactory;
 
 function assert_true(bool $condition, string $message): void
@@ -58,6 +60,8 @@ assert_true(!SmsProviderFactory::isConfigured(), 'does not report partial config
 putenv('BAMERO_MELIPAYAMAK_API_KEY=api-key-secret');
 
 $provider = new MeliPayamakRestProvider('account-user', 'api-key-secret', '50001234');
+assert_true($provider instanceof OtpSmsProvider, 'supports provider-native OTP endpoint');
+
 $responseQueue[] = [
     'response' => ['code' => 200],
     'body' => json_encode(['RetStatus' => 1, 'Value' => '987654321'], JSON_THROW_ON_ERROR),
@@ -70,6 +74,21 @@ assert_true($lastRequest[1]['sslverify'] === true, 'TLS certificate verification
 assert_true($lastRequest[1]['timeout'] <= 20, 'request has a bounded timeout');
 assert_true($lastRequest[1]['body']['password'] === 'api-key-secret', 'uses API key in provider password field');
 assert_true($lastRequest[1]['body']['to'] === '09123456789', 'sends normalized Iranian local mobile number');
+
+$responseQueue[] = [
+    'response' => ['code' => 200],
+    'body' => '987654322',
+];
+$otp = $provider->sendOtpCode('09123456789', '123456');
+assert_true($otp->isSuccess(), 'accepts successful native OTP response');
+assert_true($lastRequest[0] === 'https://rest.payamak-panel.com/api/SendSMS/SendOtp', 'uses provider-native SendOtp endpoint');
+assert_true($lastRequest[1]['body']['code'] === '123456', 'sends OTP code using native OTP parameter');
+assert_true($lastRequest[1]['sslverify'] === true, 'keeps TLS verification enabled for OTP endpoint');
+
+$beforeOtpInvalid = $lastRequest;
+$invalidOtp = $provider->sendOtpCode('09123456789', '12AB56');
+assert_true(!$invalidOtp->isSuccess(), 'rejects malformed OTP code');
+assert_true($lastRequest === $beforeOtpInvalid, 'does not call provider for malformed OTP code');
 
 $responseQueue[] = [
     'response' => ['code' => 200],
