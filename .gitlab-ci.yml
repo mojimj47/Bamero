@@ -11,7 +11,7 @@ php_syntax:
   stage: validate
   image: php:8.5-cli
   script:
-    - find wp-content/themes/bamero -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+    - find wp-content/themes/bamero wp-content/plugins/bamero-core -type f -name '*.php' -print0 | xargs -0 -n1 php -l
 
 json_validation:
   stage: validate
@@ -24,6 +24,12 @@ javascript_syntax:
   image: node:24-alpine
   script:
     - node --check wp-content/themes/bamero/assets/js/navigation.js
+
+identity_unit_tests:
+  stage: test
+  image: php:8.5-cli
+  script:
+    - php tests/identity-phone-number.test.php
 
 theme_contract_tests:
   stage: test

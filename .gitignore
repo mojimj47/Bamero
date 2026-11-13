@@ -7,7 +7,9 @@ wp-includes/
 wp-content/uploads/
 wp-content/cache/
 wp-content/upgrade/
-wp-content/plugins/
+wp-content/plugins/*
+!wp-content/plugins/bamero-core/
+!wp-content/plugins/bamero-core/**
 *.log
 *.sql
 *.sql.gz
