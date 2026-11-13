@@ -31,6 +31,9 @@ services:
       WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in .env}
       WORDPRESS_TABLE_PREFIX: ${WORDPRESS_TABLE_PREFIX:-wp_}
       WORDPRESS_DEBUG: ${WORDPRESS_DEBUG:-0}
+      BAMERO_MELIPAYAMAK_USERNAME: ${BAMERO_MELIPAYAMAK_USERNAME:-}
+      BAMERO_MELIPAYAMAK_API_KEY: ${BAMERO_MELIPAYAMAK_API_KEY:-}
+      BAMERO_MELIPAYAMAK_SENDER: ${BAMERO_MELIPAYAMAK_SENDER:-}
     volumes:
       - wordpress_data:/var/www/html
       - ./wp-content/themes/bamero:/var/www/html/wp-content/themes/bamero

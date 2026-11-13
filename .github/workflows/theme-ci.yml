@@ -45,6 +45,9 @@ jobs:
       - name: Run identity unit tests
         run: php tests/identity-phone-number.test.php
 
+      - name: Run MeliPayamak provider contract tests
+        run: php tests/melipayamak-provider.test.php
+
       - name: Run theme accessibility and metadata regression tests
         run: node tests/navigation-a11y.test.cjs
 
