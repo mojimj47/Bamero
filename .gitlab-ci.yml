@@ -9,24 +9,24 @@ workflow:
 
 php_syntax:
   stage: validate
-  image: php:8.3-cli
+  image: php:8.5-cli
   script:
     - find wp-content/themes/bamero -type f -name '*.php' -print0 | xargs -0 -n1 php -l
 
 json_validation:
   stage: validate
-  image: python:3.12-alpine
+  image: node:24-alpine
   script:
-    - python -m json.tool wp-content/themes/bamero/theme.json > /dev/null
+    - node -e "JSON.parse(require('fs').readFileSync('wp-content/themes/bamero/theme.json', 'utf8'))"
 
 javascript_syntax:
   stage: validate
-  image: node:22-alpine
+  image: node:24-alpine
   script:
     - node --check wp-content/themes/bamero/assets/js/navigation.js
 
 theme_contract_tests:
   stage: test
-  image: node:22-alpine
+  image: node:24-alpine
   script:
     - node tests/navigation-a11y.test.cjs
