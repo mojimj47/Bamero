@@ -43,6 +43,40 @@ melipayamak_provider_tests:
   script:
     - php tests/melipayamak-provider.test.php
 
+catalog_manifest_tests:
+  stage: test
+  image: php:8.5-cli
+  script:
+    - php tests/catalog-manifest.test.php
+
+demo_data_contract_tests:
+  stage: test
+  image: php:8.5-cli
+  script:
+    - php tests/demo-data-contract.test.php
+
+database_integration_tests:
+  stage: test
+  image: php:8.5-cli
+  services:
+    - name: mariadb:11.8.9
+      alias: db
+  variables:
+    MARIADB_DATABASE: bamero_test
+    MARIADB_USER: bamero
+    MARIADB_PASSWORD: bamero_test_password
+    MARIADB_ROOT_PASSWORD: root_test_password
+    DB_HOST: db
+    DB_PORT: '3306'
+    DB_NAME: bamero_test
+    DB_USER: bamero
+    DB_PASSWORD: bamero_test_password
+  before_script:
+    - docker-php-ext-install pdo_mysql
+    - until php -r '$p=@new PDO("mysql:host=db;dbname=bamero_test", "bamero", "bamero_test_password");' 2>/dev/null; do sleep 2; done
+  script:
+    - php tests/database-schema.integration.php
+
 theme_contract_tests:
   stage: test
   image: node:24-alpine
