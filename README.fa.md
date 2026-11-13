@@ -16,7 +16,7 @@ Compose یک محیط توسعهٔ محلی است و تنظیمات production�
 ## ساختار
 
 - `wp-content/themes/bamero/`: پوستهٔ سفارشی و رابط RTL.
-- `wp-content/plugins/bamero-core/`: هستهٔ قابلیت‌های اختصاصی فروشگاه.
+- `wp-content/plugins/bamero-core/`: هستهٔ قابلیت‌های اختصاصی فروشگاه، از جمله Messaging و Adapter ملی‌پیامک.
 - `compose.yaml`: WordPress 7.1.4 با PHP 8.5 و MariaDB 11.8.9 برای توسعهٔ محلی.
 - `.gitlab-ci.yml` و `.github/workflows/theme-ci.yml`: بررسی syntax، اعتبارسنجی پیکربندی و تست‌های رگرسیون.
 - `docs/version-governance-fa.md`: سیاست اجباری نسخه‌ها.
@@ -24,7 +24,7 @@ Compose یک محیط توسعهٔ محلی است و تنظیمات production�
 
 ## وضعیت قابلیت‌ها
 
-Bamero Core در نسخهٔ اولیه شامل پایهٔ مستقل و نرمال‌سازی شماره موبایل ایران است. ورود/ثبت‌نام OTP، ارسال پیامک، درگاه Zibal و گردش کامل سفارش هنوز پیاده‌سازی یا در staging تأیید نشده‌اند. هیچ دادهٔ ساختگی، کلید محرمانه یا اطلاعات پرداخت واقعی در مخزن قرار ندهید.
+Bamero Core شامل نرمال‌سازی موبایل ایران و ماژول ارسال پیامک ملی‌پیامک (REST Adapter)، قرارداد مستقل SmsProvider و صفحهٔ وضعیت پیامک در پیشخوان است. جریان OTP، rate limit و delivery tracking هنوز پیاده‌سازی نشده‌اند و ارسال واقعی تا آزمون staging فعال نیست. WSMS در این پروژه استفاده نمی‌شود.
 
 ## انتشار
 

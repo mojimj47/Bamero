@@ -31,6 +31,12 @@ identity_unit_tests:
   script:
     - php tests/identity-phone-number.test.php
 
+melipayamak_provider_tests:
+  stage: test
+  image: php:8.5-cli
+  script:
+    - php tests/melipayamak-provider.test.php
+
 theme_contract_tests:
   stage: test
   image: node:24-alpine
