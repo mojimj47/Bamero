@@ -5,9 +5,10 @@ namespace Bamero\Core\Messaging;
 
 use Bamero\Core\Identity\PhoneNumber;
 
-final class MeliPayamakRestProvider implements SmsProvider
+final class MeliPayamakRestProvider implements SmsProvider, OtpSmsProvider
 {
-    private const ENDPOINT = 'https://rest.payamak-panel.com/api/SendSMS/SendSMS';
+    private const SEND_ENDPOINT = 'https://rest.payamak-panel.com/api/SendSMS/SendSMS';
+    private const OTP_ENDPOINT = 'https://rest.payamak-panel.com/api/SendSMS/SendOtp';
     private const TIMEOUT = 15;
 
     public function __construct(
@@ -18,25 +19,70 @@ final class MeliPayamakRestProvider implements SmsProvider
 
     public function send(string $recipient, string $message): SmsResult
     {
-        if ($this->username === '' || $this->apiKey === '' || $this->sender === '') {
-            return SmsResult::failure('not_configured');
-        }
-
-        $normalized = PhoneNumber::normalize($recipient);
         $message = trim($message);
-
-        if ($normalized === null) {
-            return SmsResult::failure('invalid_recipient');
+        if (!$this->isConfigured()) {
+            return SmsResult::failure('not_configured');
         }
         if ($message === '' || strlen($message) > 4000) {
             return SmsResult::failure('invalid_message');
         }
+
+        $localRecipient = $this->localRecipient($recipient);
+        if ($localRecipient === null) {
+            return SmsResult::failure('invalid_recipient');
+        }
+
+        return $this->request(self::SEND_ENDPOINT, [
+            'username' => $this->username,
+            'password' => $this->apiKey,
+            'to' => $localRecipient,
+            'from' => $this->sender,
+            'text' => $message,
+            'isFlash' => 'false',
+        ]);
+    }
+
+    public function sendOtpCode(string $recipient, string $code): SmsResult
+    {
+        if (!$this->isConfigured()) {
+            return SmsResult::failure('not_configured');
+        }
+        if (preg_match('/\A[0-9]{6}\z/', $code) !== 1) {
+            return SmsResult::failure('invalid_otp_code');
+        }
+
+        $localRecipient = $this->localRecipient($recipient);
+        if ($localRecipient === null) {
+            return SmsResult::failure('invalid_recipient');
+        }
+
+        return $this->request(self::OTP_ENDPOINT, [
+            'username' => $this->username,
+            'password' => $this->apiKey,
+            'to' => $localRecipient,
+            'from' => $this->sender,
+            'code' => $code,
+        ]);
+    }
+
+    private function isConfigured(): bool
+    {
+        return $this->username !== '' && $this->apiKey !== '' && $this->sender !== '';
+    }
+
+    private function localRecipient(string $recipient): ?string
+    {
+        $normalized = PhoneNumber::normalize($recipient);
+        return $normalized === null ? null : '0' . substr($normalized, 3);
+    }
+
+    private function request(string $endpoint, array $body): SmsResult
+    {
         if (!function_exists('wp_remote_post')) {
             return SmsResult::failure('wordpress_http_unavailable');
         }
 
-        $localRecipient = '0' . substr($normalized, 3);
-        $response = wp_remote_post(self::ENDPOINT, [
+        $response = wp_remote_post($endpoint, [
             'timeout' => self::TIMEOUT,
             'redirection' => 0,
             'blocking' => true,
@@ -46,15 +92,7 @@ final class MeliPayamakRestProvider implements SmsProvider
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/x-www-form-urlencoded; charset=UTF-8',
             ],
-            'body' => [
-                'username' => $this->username,
-                // The API key is sent in the provider's legacy password field.
-                'password' => $this->apiKey,
-                'to' => $localRecipient,
-                'from' => $this->sender,
-                'text' => $message,
-                'isFlash' => 'false',
-            ],
+            'body' => $body,
         ]);
 
         if (is_wp_error($response)) {
@@ -66,15 +104,17 @@ final class MeliPayamakRestProvider implements SmsProvider
             return SmsResult::failure('http_' . $httpStatus);
         }
 
-        $payload = json_decode(wp_remote_retrieve_body($response), true);
-        if (!is_array($payload) || !array_key_exists('RetStatus', $payload) || !array_key_exists('Value', $payload)) {
-            return SmsResult::failure('invalid_provider_response');
+        $raw = trim(wp_remote_retrieve_body($response));
+        $payload = json_decode($raw, true);
+        if (is_array($payload) && array_key_exists('RetStatus', $payload) && array_key_exists('Value', $payload)) {
+            $value = trim((string) $payload['Value']);
+            if ((string) $payload['RetStatus'] !== '1') {
+                return SmsResult::failure(preg_match('/\A-?\d+\z/', $value) === 1 ? $value : 'provider_rejected');
+            }
+        } else {
+            $value = trim($raw, " \t\n\r\0\x0B\"'");
         }
 
-        $value = trim((string) $payload['Value']);
-        if ((string) $payload['RetStatus'] !== '1') {
-            return SmsResult::failure(preg_match('/\A-?\d+\z/', $value) === 1 ? $value : 'provider_rejected');
-        }
         if ($value === '' || !ctype_digit($value)) {
             return SmsResult::failure(preg_match('/\A-?\d+\z/', $value) === 1 ? $value : 'provider_rejected');
         }

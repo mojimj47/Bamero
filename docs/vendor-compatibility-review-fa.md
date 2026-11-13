@@ -47,11 +47,11 @@
 
 - WSMS در پروژهٔ بامرو نصب، فعال یا استفاده نخواهد شد. هیچ خرید یا تمدید آن نیز انجام نمی‌شود.
 - ارسال پیامک فقط از طریق ماژول اختصاصی Bamero Core و REST API ملی‌پیامک انجام می‌شود.
-- قرارداد `SmsProvider` و Adapter اختصاصی `MeliPayamakRestProvider` پیاده‌سازی شده‌اند؛ تنظیمات اتصال از environment دریافت می‌شود و صفحهٔ مدیریتی وضعیت اتصال را بدون افشای secret نشان می‌دهد.
+- قراردادهای `SmsProvider` و `OtpSmsProvider` و Adapter اختصاصی `MeliPayamakRestProvider` پیاده‌سازی شده‌اند؛ ارسال عمومی و متد رسمی SendOtp ملی‌پیامک پشتیبانی می‌شوند. تنظیمات اتصال از environment دریافت می‌شود و صفحهٔ مدیریتی وضعیت اتصال را بدون افشای secret نشان می‌دهد.
 - آزمون‌های قراردادی برای TLS verification، HTTPS endpoint، شمارهٔ معتبر، پاسخ موفق/خطای provider، timeout/network error و عدم ارسال با ورودی نامعتبر به CI افزوده شده‌اند.
 - API key وب‌سرویس ملی‌پیامک لازم است؛ رمز عادی ورود به پنل نباید جایگزین آن شود. اگر محدودیت IP در پنل فعال است، IP خروجی سرور باید در allowlist ملی‌پیامک ثبت شود.
 - هنوز ارسال واقعی در staging انجام نشده است؛ شناسهٔ خط فرستنده، اعتبار پنل، دسترسی IP و قالب/نوع پیام باید با حساب واقعی تأیید شوند.
-- این پیاده‌سازی به معنی تکمیل OTP نیست؛ جریان OTP، ذخیرهٔ hash، انقضا، مصرف اتمیک، rate limit، cooldown، anti-enumeration و اتصال به My Account در فاز بعد توسعه می‌یابد.
+- این پیاده‌سازی به معنی تکمیل ورود OTP نیست؛ primitives تولید/hash و transport متد SendOtp آماده‌اند، اما ذخیرهٔ challenge، انقضا، مصرف اتمیک، rate limit، cooldown، anti-enumeration و اتصال به My Account در فاز بعد توسعه می‌یابد.
 
 منابع:
 - https://www.melipayamak.com/api/

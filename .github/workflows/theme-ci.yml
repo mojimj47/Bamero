@@ -45,6 +45,9 @@ jobs:
       - name: Run identity unit tests
         run: php tests/identity-phone-number.test.php
 
+      - name: Run OTP security primitive tests
+        run: php tests/otp-security-primitives.test.php
+
       - name: Run MeliPayamak provider contract tests
         run: php tests/melipayamak-provider.test.php
 

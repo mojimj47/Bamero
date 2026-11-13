@@ -108,3 +108,13 @@ WooCommerce مرجع کالا، قیمت، موجودی، سبد، سفارش و
 منابع فنی:
 - مستند/نمونه‌های REST ملی‌پیامک: https://www.melipayamak.com/api/
 - توضیح کلاینت REST دربارهٔ استفاده از username و API key، کدهای خطای عددی در Value و عدم retry خودکار: https://docs.rs/melipayamak/latest/melipayamak/
+
+
+## ۱۲. فاز هویت — primitives امن OTP (۱۴ نوامبر ۲۰۲۶)
+
+- تولید کد شش‌رقمی فقط با `random_int` انجام می‌شود.
+- OTP خام در پایگاه داده ذخیره نمی‌شود؛ فقط HMAC-SHA-256 با secret سمت سرور ذخیره می‌شود تا افشای صرف دیتابیس امکان brute-force آفلاین سادهٔ فضای یک‌میلیونی را ندهد.
+- hash به purpose (ورود یا ثبت‌نام مشتری) متصل است؛ کد ورود برای purpose دیگر معتبر نیست.
+- مقایسه با `hash_equals` انجام می‌شود.
+- secret باید حداقل ۳۲ بایت تصادفی و خارج از دیتابیس/Git باشد؛ چرخش آن کدهای فعال را نامعتبر می‌کند.
+- متد transport اختصاصی SendOtp در Adapter ملی‌پیامک پیاده‌سازی شده است؛ primitives تولید و hash نیز آماده‌اند. ذخیره‌سازی challenge، انقضا، مصرف اتمیک، rate limit، orchestration ارسال OTP و REST/UI ورود هنوز در فاز بعدی است.
