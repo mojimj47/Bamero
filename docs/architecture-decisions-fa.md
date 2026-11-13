@@ -83,3 +83,19 @@ WooCommerce مرجع کالا، قیمت، موجودی، سبد، سفارش و
 - افزونهٔ OTP سازگار با MeliPayamak و سیاست مجوز/هزینه باید انتخاب و آزموده شود.
 - دامنه، میزبان، روش ارسال، مالیات/واحد قیمت، دادهٔ واقعی کالا و سیاست‌های تجاری لازم‌اند.
 - GitLab CI جدید در این commit فقط آزمون‌های repository-level را اجرا می‌کند؛ deployment یا تست runtime را ادعا نمی‌کند.
+
+## 10. ممیزی نسخه و سازگاری افزونه‌های پیامک/پرداخت (۱۴ نوامبر ۲۰۲۶)
+
+- **WSMS:** نسخهٔ پایدار 7.2.12 در WordPress.org منتشر شده، آخرین به‌روزرسانی آن ۶ نوامبر ۲۰۲۶ است و تا WordPress 7.1.4 آزمایش‌شده اعلام شده است. درگاه MeliPayamak در نسخهٔ رایگان WSMS فهرست شده؛ ورود پیامکی/OTP و 2FA طبق صفحهٔ رسمی افزونه در بستهٔ All-in-One قرار دارد. گزینهٔ پیشنهادی فعلی برای staging، WSMS All-in-One تک‌سایته است؛ خرید یا فعال‌سازی تا تأیید مالک ممنوع است. هنوز سازگاری واقعی جریان My Account و ثبت نام/نام خانوادگی با نیاز بامرو در staging اثبات نشده است.
+- **قیمت WSMS:** صفحهٔ رسمی قیمت‌گذاری All-in-One تک‌سایته را ۵۹ دلار در سال نشان می‌دهد. صفحات رسمی مختلف دربارهٔ نام بسته و قیمت Pro یکسان نیستند؛ بنابراین پیش از خرید باید SKU، دامنهٔ مجاز و قابلیت OTP در checkout نهایی فروشنده بررسی شود.
+- **Zibal:** افزونهٔ رسمی WooCommerce نسخهٔ 2.1 آخرین نسخهٔ پیدا‌شده است و changelog آن سخت‌سازی callback/verify، چند trackId و اصلاح مبلغ/ارز/موبایل را اعلام می‌کند. صفحهٔ افزونه سازگاری آزمایش‌شده تا WordPress 6.9.11 را نشان می‌دهد، نه WordPress 7.1.4؛ بنابراین با وجود سازگاری نحوی PHP 8.5، هنوز برای محیط هدف بامرو تأیید نشده است. استفاده فقط پس از نصب در staging و گذراندن سناریوهای بخش ۴ مجاز است.
+- **API مستقیم MeliPayamak:** مستندات رسمی متد SendOtp پارامترهای username/password/from/to/code را فهرست می‌کند؛ نمونهٔ PHP همان صفحه SSL peer/host verification را غیرفعال می‌کند. این الگو در بامرو مطلقاً استفاده نخواهد شد. هر اتصال مستقیم احتمالی باید با TLS verification فعال، احراز هویت جاری تأییدشده و API رسمی فعلی پیاده‌سازی شود؛ در اولویت، استفاده از Adapter افزونهٔ معتبر WSMS است.
+
+### منابع رسمی بررسی‌شده
+- WSMS WordPress.org: https://wordpress.org/plugins/wp-sms/
+- WSMS pricing: https://wsms.io/pricing/
+- WSMS MeliPayamak gateway: https://wsms.io/gateways/melipayamak/
+- Zibal WordPress.org: https://wordpress.org/plugins/zibal-payment-gateway-for-woocommerce/
+- MeliPayamak OTP API: https://www.melipayamak.com/api/sendotp/
+
+**وضعیت تصمیم:** WSMS All-in-One و افزونهٔ Zibal 2.1 صرفاً گزینه‌های کاندید هستند؛ هیچ‌کدام در مخزن یا محیط اجرایی نصب/فعال نشده‌اند. هیچ نسخه‌ای بدون آزمون staging تأیید production نمی‌شود.
