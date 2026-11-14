@@ -41,6 +41,7 @@ identity_hash_assert($phoneHash !== (new IdentityHasher('different-identity-secr
 $ipHash = $hasher->ipHash('192.0.2.10');
 identity_hash_assert(preg_match('/\A[a-f0-9]{64}\z/', $ipHash) === 1, 'returns a fixed-length IP HMAC digest');
 identity_hash_assert($ipHash !== $hasher->ipHash('192.0.2.11'), 'distinguishes different IP addresses');
+identity_hash_assert($ipHash === $hasher->ipHash('::ffff:192.0.2.10'), 'canonicalizes IPv4-mapped IPv6 identity addresses to IPv4');
 identity_hash_assert($ipHash !== $phoneHash, 'separates phone and IP hash domains');
 
 $phoneBucket = $hasher->phoneRateLimitBucket('09123456789', 'cooldown');
@@ -50,6 +51,7 @@ identity_hash_assert($phoneBucket !== $phoneHash, 'separates rate-limit and iden
 
 $ipBucket = $hasher->ipRateLimitBucket('192.0.2.10', 'minute');
 identity_hash_assert($ipBucket !== $ipHash, 'separates IP rate-limit and identity hash domains');
+identity_hash_assert($ipBucket === $hasher->ipRateLimitBucket('::ffff:192.0.2.10', 'minute'), 'canonicalizes IPv4-mapped IPv6 rate-limit addresses to IPv4');
 
 $invalidPhoneRejected = false;
 try {
@@ -60,12 +62,29 @@ try {
 identity_hash_assert($invalidPhoneRejected, 'rejects non-mobile phone identity');
 
 $invalidIpRejected = false;
+$invalidIpBucketRejected = false;
+$ipValidationWarnings = [];
+set_error_handler(static function (int $severity, string $message) use (&$ipValidationWarnings): bool {
+    $ipValidationWarnings[] = $message;
+    return true;
+});
 try {
-    $hasher->ipHash('not-an-ip-address');
-} catch (InvalidArgumentException) {
-    $invalidIpRejected = true;
+    try {
+        $hasher->ipHash('not-an-ip-address');
+    } catch (InvalidArgumentException) {
+        $invalidIpRejected = true;
+    }
+    try {
+        $hasher->ipRateLimitBucket('not-an-ip-address', 'minute');
+    } catch (InvalidArgumentException) {
+        $invalidIpBucketRejected = true;
+    }
+} finally {
+    restore_error_handler();
 }
 identity_hash_assert($invalidIpRejected, 'rejects invalid IP addresses');
+identity_hash_assert($invalidIpBucketRejected, 'rejects invalid IP rate-limit addresses');
+identity_hash_assert($ipValidationWarnings === [], 'validates malformed IP input without emitting PHP warnings');
 
 $invalidPolicyRejected = false;
 try {
