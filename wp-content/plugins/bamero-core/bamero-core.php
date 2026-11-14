@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('BAMERO_CORE_VERSION', '0.7.0');
+define('BAMERO_CORE_VERSION', '0.8.0');
 define('BAMERO_CORE_PATH', plugin_dir_path(__FILE__));
 
 require_once BAMERO_CORE_PATH . 'src/Identity/PhoneNumber.php';
