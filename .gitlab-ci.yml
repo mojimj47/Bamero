@@ -76,6 +76,7 @@ database_integration_tests:
     - until php -r '$p=@new PDO("mysql:host=db;dbname=bamero_test", "bamero", "bamero_test_password");' 2>/dev/null; do sleep 2; done
   script:
     - php tests/database-schema.integration.php
+    - php tests/otp-challenge-store.integration.php
 
 theme_contract_tests:
   stage: test

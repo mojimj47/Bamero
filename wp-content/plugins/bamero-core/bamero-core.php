@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bamero Core
  * Description: هستهٔ مستقل قابلیت‌های اختصاصی فروشگاه Bamero.
- * Version: 0.6.0
+ * Version: 0.7.0
  * Requires PHP: 8.5
  * Requires Plugins: woocommerce
  * Text Domain: bamero-core
@@ -14,12 +14,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-define('BAMERO_CORE_VERSION', '0.6.0');
+define('BAMERO_CORE_VERSION', '0.7.0');
 define('BAMERO_CORE_PATH', plugin_dir_path(__FILE__));
 
 require_once BAMERO_CORE_PATH . 'src/Identity/PhoneNumber.php';
 require_once BAMERO_CORE_PATH . 'src/Identity/OtpPurpose.php';
 require_once BAMERO_CORE_PATH . 'src/Identity/OtpCode.php';
+require_once BAMERO_CORE_PATH . 'src/Identity/OtpChallengeStore.php';
 require_once BAMERO_CORE_PATH . 'src/Messaging/SmsResult.php';
 require_once BAMERO_CORE_PATH . 'src/Messaging/SmsProvider.php';
 require_once BAMERO_CORE_PATH . 'src/Messaging/OtpSmsProvider.php';
