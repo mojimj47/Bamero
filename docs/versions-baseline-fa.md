@@ -9,7 +9,7 @@
 | WooCommerce | 11.2.2 | هدف ثبت‌شده؛ قبل از production باید روی staging تأیید شود. |
 | MariaDB | 11.8.9 | شاخه LTS مورد استفاده در Compose. |
 | Node.js | 24 | شاخه LTS ابزارهای CI. |
-| Bamero Core | 0.6.0 | Messaging، primitives امن OTP، کاتالوگ و demo fixture با guard محیطی و DB migrations. |
+| Bamero Core | 0.7.0 | Messaging، OTP primitives، ذخیره challenge یک‌بارمصرف، rate-limit bucket، کاتالوگ و demo fixture. |
 
 ## سیاست نگه‌داری
 

@@ -116,5 +116,8 @@ WooCommerce مرجع کالا، قیمت، موجودی، سبد، سفارش و
 - OTP خام در پایگاه داده ذخیره نمی‌شود؛ فقط HMAC-SHA-256 با secret سمت سرور ذخیره می‌شود تا افشای صرف دیتابیس امکان brute-force آفلاین سادهٔ فضای یک‌میلیونی را ندهد.
 - hash به purpose (ورود یا ثبت‌نام مشتری) متصل است؛ کد ورود برای purpose دیگر معتبر نیست.
 - مقایسه با `hash_equals` انجام می‌شود.
+- `OtpChallengeStore` کد خام را ذخیره نمی‌کند؛ challengeهای قبلی همان شماره/purpose را با صدور challenge جدید باطل می‌کند، انقضا و سقف تلاش را در query اعمال می‌کند و مصرف موفق را با UPDATE شرطی اتمیک و single-use انجام می‌دهد.
+- rate-limit bucket با کلید هش‌شده و upsert اتمیک در جدول اختصاصی نگهداری می‌شود؛ کلید خام شماره/IP نباید به‌عنوان bucket ذخیره شود.
+- CI چرخهٔ صدور، ابطال challenge قبلی، purpose mismatch، تلاش ناموفق، سقف تلاش، انقضا، replay و rate limit را روی MariaDB 11.8.9 واقعی می‌آزماید.
 - secret باید حداقل ۳۲ بایت تصادفی و خارج از دیتابیس/Git باشد؛ چرخش آن کدهای فعال را نامعتبر می‌کند.
-- متد transport اختصاصی SendOtp در Adapter ملی‌پیامک پیاده‌سازی شده است؛ primitives تولید و hash نیز آماده‌اند. ذخیره‌سازی challenge، انقضا، مصرف اتمیک، rate limit، orchestration ارسال OTP و REST/UI ورود هنوز در فاز بعدی است.
+- متد transport اختصاصی SendOtp در Adapter ملی‌پیامک پیاده‌سازی شده است؛ primitives تولید و hash نیز آماده‌اند. ذخیره‌سازی challenge، انقضا، مصرف اتمیک و bucketهای rate limit در Bamero Core پیاده‌سازی و با MariaDB واقعی آزمون شده‌اند؛ orchestration ارسال OTP، cooldown چندسطحی، anti-enumeration و REST/UI ورود هنوز در فاز بعدی هستند.
