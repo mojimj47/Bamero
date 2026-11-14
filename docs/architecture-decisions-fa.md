@@ -122,5 +122,5 @@ WooCommerce مرجع کالا، قیمت، موجودی، سبد، سفارش و
 - secret باید حداقل ۳۲ بایت تصادفی و خارج از دیتابیس/Git باشد؛ چرخش آن کدهای فعال را نامعتبر می‌کند.
 - هش شماره موبایل و IP با HMAC-SHA-256 و secret مستقل `BAMERO_IDENTITY_HASH_SECRET` تولید می‌شود؛ SHA-256 بدون کلید برای شناسه‌های کم‌آنتروپی ممنوع است.
 - domain separation برای هش هویت و bucketهای rate-limit اعمال می‌شود؛ شماره قبل از هش به E.164 نرمال و IP با `inet_pton` canonical می‌شود.
-- secret هویت باید حداقل ۳۲ بایت تصادفی و خارج از Git/DB باشد؛ تغییر آن کلیدهای bucket و hashهای هویت قبلی را غیرقابل تطبیق می‌کند و باید با برنامهٔ migration انجام شود.
+- secret هویت باید حداقل ۳۲ بایت تصادفی و خارج از Git/DB باشد؛ در runtime از ثابت `BAMERO_IDENTITY_HASH_SECRET` یا متغیر محیطی هم‌نام بارگذاری می‌شود و در نبود آن fail-closed است. تغییر secret کلیدهای bucket و hashهای هویت قبلی را غیرقابل تطبیق می‌کند و باید با برنامهٔ migration انجام شود.
 - متد transport اختصاصی SendOtp در Adapter ملی‌پیامک پیاده‌سازی شده است؛ primitives تولید و hash نیز آماده‌اند. ذخیره‌سازی challenge، انقضا، مصرف اتمیک و bucketهای rate limit در Bamero Core پیاده‌سازی و با MariaDB واقعی آزمون شده‌اند؛ orchestration ارسال OTP، cooldown چندسطحی، anti-enumeration و REST/UI ورود هنوز در فاز بعدی هستند.
