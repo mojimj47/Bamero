@@ -14,6 +14,22 @@ function identity_hash_assert(bool $condition, string $message): void
     }
 }
 
+putenv('BAMERO_IDENTITY_HASH_SECRET=environment-identity-secret-with-32-bytes');
+$environmentHasher = IdentityHasher::fromEnvironment();
+identity_hash_assert(
+    $environmentHasher->phoneHash('09123456789') === (new IdentityHasher('environment-identity-secret-with-32-bytes'))->phoneHash('09123456789'),
+    'loads the dedicated hashing secret from the runtime environment'
+);
+putenv('BAMERO_IDENTITY_HASH_SECRET');
+
+$missingSecretRejected = false;
+try {
+    IdentityHasher::fromEnvironment();
+} catch (InvalidArgumentException) {
+    $missingSecretRejected = true;
+}
+identity_hash_assert($missingSecretRejected, 'fails closed when the dedicated runtime secret is missing');
+
 $hasher = new IdentityHasher('identity-hash-test-secret-with-at-least-32-bytes');
 $phoneHash = $hasher->phoneHash('09123456789');
 identity_hash_assert(preg_match('/\A[a-f0-9]{64}\z/', $phoneHash) === 1, 'returns a fixed-length HMAC digest');
