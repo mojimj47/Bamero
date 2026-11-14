@@ -121,7 +121,7 @@ WooCommerce مرجع کالا، قیمت، موجودی، سبد، سفارش و
 - CI چرخهٔ صدور، ابطال challenge قبلی، purpose mismatch، تلاش ناموفق، سقف تلاش، انقضا، replay و rate limit را روی MariaDB 11.8.9 واقعی می‌آزماید.
 - secret باید حداقل ۳۲ بایت تصادفی و خارج از دیتابیس/Git باشد؛ چرخش آن کدهای فعال را نامعتبر می‌کند.
 - هش شماره موبایل و IP با HMAC-SHA-256 و secret مستقل `BAMERO_IDENTITY_HASH_SECRET` تولید می‌شود؛ SHA-256 بدون کلید برای شناسه‌های کم‌آنتروپی ممنوع است.
-- domain separation برای هش هویت و bucketهای rate-limit اعمال می‌شود؛ شماره قبل از هش به E.164 نرمال و IP با `inet_pton` canonical می‌شود.
+- domain separation برای هش هویت و bucketهای rate-limit اعمال می‌شود؛ شماره قبل از هش به E.164 نرمال می‌شود. IP ابتدا با `FILTER_VALIDATE_IP` اعتبارسنجی و با `inet_pton` به نمایش باینری canonical تبدیل می‌شود؛ IPv4-mapped IPv6 نیز به IPv4 معادل unwrap می‌شود تا تفاوت نمایش نتواند bucket محدودیت نرخ را دور بزند.
 - `OtpChallengeStore` به `IdentityHasher` تزریق‌شده وابسته است و شماره/IP خام را در API می‌گیرد؛ تولید HMAC در مرز ذخیره‌سازی انجام می‌شود تا caller نتواند hash بدون کلید را ذخیره کند. bucketهای rate-limit فقط از APIهای شماره/IP ساخته می‌شوند.
 - secret هویت باید حداقل ۳۲ بایت تصادفی و خارج از Git/DB باشد؛ در runtime از ثابت `BAMERO_IDENTITY_HASH_SECRET` یا متغیر محیطی هم‌نام بارگذاری می‌شود و در نبود آن fail-closed است. تغییر secret کلیدهای bucket و hashهای هویت قبلی را غیرقابل تطبیق می‌کند و باید با برنامهٔ migration انجام شود.
 - متد transport اختصاصی SendOtp در Adapter ملی‌پیامک پیاده‌سازی شده است؛ primitives تولید و hash نیز آماده‌اند. ذخیره‌سازی challenge، انقضا، مصرف اتمیک و bucketهای rate limit در Bamero Core پیاده‌سازی و با MariaDB واقعی آزمون شده‌اند؛ orchestration ارسال OTP، cooldown چندسطحی، anti-enumeration و REST/UI ورود هنوز در فاز بعدی هستند.
