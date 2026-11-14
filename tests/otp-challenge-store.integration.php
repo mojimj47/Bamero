@@ -149,7 +149,7 @@ if ($store->verifyAndConsume($first, $phone, $correctCode, $secret, OtpPurpose::
 if (!$store->verifyAndConsume($second, $phone, $correctCode, $secret, OtpPurpose::CustomerLogin)) {
     throw new RuntimeException('A valid, active OTP must be accepted exactly once.');
 }
-if ($store->verifyAndConsume($second, $phoneHash, $correctCode, $secret, OtpPurpose::CustomerLogin)) {
+if ($store->verifyAndConsume($second, $phone, $correctCode, $secret, OtpPurpose::CustomerLogin)) {
     throw new RuntimeException('A consumed OTP must not be reusable.');
 }
 if ($store->verifyAndConsume($second, '09123456788', $correctCode, $secret, OtpPurpose::CustomerLogin)) {
@@ -176,7 +176,7 @@ $db->query($db->prepare(
     'UPDATE otp_integration_bamero_otp_challenges SET expires_at = DATE_SUB(UTC_TIMESTAMP(), INTERVAL 1 SECOND) WHERE id = %d',
     $expiredId
 ));
-if ($store->verifyAndConsume($expiredId, $phoneHash, $correctCode, $secret, OtpPurpose::CustomerLogin)) {
+if ($store->verifyAndConsume($expiredId, $phone, $correctCode, $secret, OtpPurpose::CustomerLogin)) {
     throw new RuntimeException('Expired OTP challenges must be rejected.');
 }
 
@@ -185,6 +185,13 @@ if (!$store->hitPhoneRateLimit($phone, 'otp_issue', 2, 60)
     || $store->hitPhoneRateLimit($phone, 'otp_issue', 2, 60)
 ) {
     throw new RuntimeException('Rate-limit buckets must enforce their configured hit count.');
+}
+
+if (!$store->hitIpRateLimit($ip, 'otp_issue_ip', 2, 60)
+    || !$store->hitIpRateLimit($ip, 'otp_issue_ip', 2, 60)
+    || $store->hitIpRateLimit($ip, 'otp_issue_ip', 2, 60)
+) {
+    throw new RuntimeException('IP rate-limit buckets must enforce their configured hit count.');
 }
 
 $db->failNextGetVar = true;
