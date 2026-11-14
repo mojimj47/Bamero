@@ -20,6 +20,7 @@ define('BAMERO_CORE_PATH', plugin_dir_path(__FILE__));
 require_once BAMERO_CORE_PATH . 'src/Identity/PhoneNumber.php';
 require_once BAMERO_CORE_PATH . 'src/Identity/OtpPurpose.php';
 require_once BAMERO_CORE_PATH . 'src/Identity/OtpCode.php';
+require_once BAMERO_CORE_PATH . 'src/Identity/IdentityHasher.php';
 require_once BAMERO_CORE_PATH . 'src/Identity/OtpChallengeStore.php';
 require_once BAMERO_CORE_PATH . 'src/Messaging/SmsResult.php';
 require_once BAMERO_CORE_PATH . 'src/Messaging/SmsProvider.php';
