@@ -11,7 +11,10 @@ final class OtpChallengeStore
     private string $challengeTable;
     private string $rateLimitTable;
 
-    public function __construct(private object $db)
+    public function __construct(
+        private object $db,
+        private readonly IdentityHasher $identityHasher
+    )
     {
         if (!isset($db->prefix) || !is_string($db->prefix) || $db->prefix === '') {
             throw new InvalidArgumentException('A valid WordPress database prefix is required.');
@@ -22,17 +25,15 @@ final class OtpChallengeStore
     }
 
     public function issue(
-        string $phoneHash,
+        string $phone,
         OtpPurpose $purpose,
         string $codeHash,
         int $ttlSeconds,
-        ?string $ipHash = null
+        ?string $ip = null
     ): int {
-        self::assertHash($phoneHash, 'Phone');
+        $phoneHash = $this->identityHasher->phoneHash($phone);
+        $ipHash = $ip !== null ? $this->identityHasher->ipHash($ip) : null;
         self::assertHash($codeHash, 'OTP');
-        if ($ipHash !== null) {
-            self::assertHash($ipHash, 'IP');
-        }
         if ($ttlSeconds < 60 || $ttlSeconds > 900) {
             throw new InvalidArgumentException('OTP lifetime must be between 60 and 900 seconds.');
         }
@@ -99,7 +100,7 @@ final class OtpChallengeStore
 
     public function verifyAndConsume(
         int $challengeId,
-        string $phoneHash,
+        string $phone,
         string $code,
         string $secret,
         OtpPurpose $purpose,
@@ -108,7 +109,7 @@ final class OtpChallengeStore
         if ($challengeId < 1 || $maxAttempts < 1 || $maxAttempts > 10) {
             return false;
         }
-        self::assertHash($phoneHash, 'Phone');
+        $phoneHash = $this->identityHasher->phoneHash($phone);
 
         $row = $this->db->get_row($this->db->prepare(
             "SELECT id, purpose, code_hash
@@ -169,7 +170,19 @@ final class OtpChallengeStore
         return $consumed === 1;
     }
 
-    public function hitRateLimit(string $bucketHash, int $maxHits, int $windowSeconds): bool
+    public function hitPhoneRateLimit(string $phone, string $policy, int $maxHits, int $windowSeconds): bool
+    {
+        $bucketHash = $this->identityHasher->phoneRateLimitBucket($phone, $policy);
+        return $this->hitRateLimit($bucketHash, $maxHits, $windowSeconds);
+    }
+
+    public function hitIpRateLimit(string $ip, string $policy, int $maxHits, int $windowSeconds): bool
+    {
+        $bucketHash = $this->identityHasher->ipRateLimitBucket($ip, $policy);
+        return $this->hitRateLimit($bucketHash, $maxHits, $windowSeconds);
+    }
+
+    private function hitRateLimit(string $bucketHash, int $maxHits, int $windowSeconds): bool
     {
         self::assertHash($bucketHash, 'Rate-limit bucket');
         if ($maxHits < 1 || $maxHits > 1000 || $windowSeconds < 1 || $windowSeconds > 86400) {
@@ -215,7 +228,7 @@ final class OtpChallengeStore
     private static function assertHash(string $value, string $label): void
     {
         if (preg_match('/\A[a-f0-9]{64}\z/', $value) !== 1) {
-            throw new InvalidArgumentException($label . ' hash must be a 64-character lowercase SHA-256 digest.');
+            throw new InvalidArgumentException($label . ' hash must be a 64-character lowercase hexadecimal digest.');
         }
     }
 }
