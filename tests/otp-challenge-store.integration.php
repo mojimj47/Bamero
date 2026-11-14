@@ -134,6 +134,18 @@ if (!$issuanceWasBlocked) {
 }
 
 $first = $store->issue($phone, OtpPurpose::CustomerLogin, $codeHash, 300, $ip);
+$persistedIdentity = $db->get_row($db->prepare(
+    'SELECT phone_hash, ip_hash FROM otp_integration_bamero_otp_challenges WHERE id = %d',
+    $first
+));
+if (!is_array($persistedIdentity)
+    || !hash_equals($phoneHash, (string) $persistedIdentity['phone_hash'])
+    || !hash_equals($ipHash, (string) $persistedIdentity['ip_hash'])
+    || hash_equals($phone, (string) $persistedIdentity['phone_hash'])
+    || hash_equals($ip, (string) $persistedIdentity['ip_hash'])
+) {
+    throw new RuntimeException('OTP storage must persist keyed identity digests, never raw phone or IP values.');
+}
 $releaseProbe = $lockPdo->prepare('SELECT GET_LOCK(?, 0)');
 $releaseProbe->execute([$lockName]);
 if ((int) $releaseProbe->fetchColumn() !== 1) {
