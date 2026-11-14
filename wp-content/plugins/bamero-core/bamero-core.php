@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Bamero Core
  * Description: هستهٔ مستقل قابلیت‌های اختصاصی فروشگاه Bamero.
- * Version: 0.7.0
+ * Version: 0.8.0
  * Requires PHP: 8.5
  * Requires Plugins: woocommerce
  * Text Domain: bamero-core
