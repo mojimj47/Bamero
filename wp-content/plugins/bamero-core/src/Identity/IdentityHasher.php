@@ -14,6 +14,19 @@ final class IdentityHasher
         }
     }
 
+    public static function fromEnvironment(): self
+    {
+        $secret = defined('BAMERO_IDENTITY_HASH_SECRET')
+            ? constant('BAMERO_IDENTITY_HASH_SECRET')
+            : getenv('BAMERO_IDENTITY_HASH_SECRET');
+
+        if (!is_string($secret) || $secret === '') {
+            throw new InvalidArgumentException('BAMERO_IDENTITY_HASH_SECRET must be configured outside the database.');
+        }
+
+        return new self($secret);
+    }
+
     public function phoneHash(string $phone): string
     {
         $normalized = PhoneNumber::normalize($phone);
