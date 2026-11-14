@@ -39,10 +39,7 @@ final class IdentityHasher
 
     public function ipHash(string $ip): string
     {
-        $packed = inet_pton($ip);
-        if ($packed === false) {
-            throw new InvalidArgumentException('A valid IP address is required.');
-        }
+        $packed = self::canonicalIpBytes($ip);
 
         return hash_hmac('sha256', 'identity:ip:' . bin2hex($packed), $this->secret);
     }
@@ -61,12 +58,28 @@ final class IdentityHasher
     public function ipRateLimitBucket(string $ip, string $policy): string
     {
         self::assertPolicy($policy);
+        $packed = self::canonicalIpBytes($ip);
+
+        return hash_hmac('sha256', 'rate-limit:ip:' . $policy . ':' . bin2hex($packed), $this->secret);
+    }
+
+    private static function canonicalIpBytes(string $ip): string
+    {
+        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            throw new InvalidArgumentException('A valid IP address is required.');
+        }
+
         $packed = inet_pton($ip);
         if ($packed === false) {
             throw new InvalidArgumentException('A valid IP address is required.');
         }
 
-        return hash_hmac('sha256', 'rate-limit:ip:' . $policy . ':' . bin2hex($packed), $this->secret);
+        // Treat IPv4-mapped IPv6 addresses as their equivalent IPv4 address.
+        if (strlen($packed) === 16 && substr($packed, 0, 12) === str_repeat("\0", 10) . "\xff\xff") {
+            return substr($packed, 12);
+        }
+
+        return $packed;
     }
 
     private static function assertPolicy(string $policy): void
